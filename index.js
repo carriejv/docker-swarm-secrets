@@ -10,8 +10,9 @@ let path = require('path');
  * Constants
  */
 const DEFAULT_ENCODING = 'utf-8';
-const DEFAULT_PARSE_JSON = true;
 const DEFAULT_SECRETS_DIR = '/run/secrets';
+const DEFAULT_IGNORE_JSON = false;
+const DEFAULT_DEBUG = false;
 
 /**
  * Reads all Docker secrets asynchronously into an object, using secret names as keys. Valid JSON is parsed as such, unless set otherwise in options. All other data is read as a string.
@@ -22,8 +23,9 @@ const DEFAULT_SECRETS_DIR = '/run/secrets';
 let readSecrets = function(options, callback) {
 	let opts = {
 		encoding: (options && options.encoding ? options.encoding : DEFAULT_ENCODING),
-		parseJSON: (options && options.parseJSON !== DEFAULT_PARSE_JSON ? options.parseJSON : DEFAULT_PARSE_JSON),
-		secretsDir: (options && options.secretsDir ? options.secretsDir : DEFAULT_SECRETS_DIR)
+		secretsDir: (options && options.secretsDir ? options.secretsDir : DEFAULT_SECRETS_DIR),
+		ignoreJSON: (options && options.ignoreJSON !== DEFAULT_IGNORE_JSON? options.ignoreJSON : DEFAULT_IGNORE_JSON),
+		debug: (options && options.debug !== DEFAULT_DEBUG ? options.debug : DEFAULT_DEBUG)
 	};
 	let doReadSecrets = function() {
 		let promise = new Promise( (resolve, reject) => {
@@ -46,7 +48,10 @@ let readSecrets = function(options, callback) {
 							reject(err);
 						}
 						data = data.toString();
-						if(opts.parseJSON) {
+						if(opts.ignoreJSON) {
+							res[v] = data;
+						}
+						else {
 							let json;
 							try {
 								json = JSON.parse(data);
@@ -55,9 +60,6 @@ let readSecrets = function(options, callback) {
 								json = data;
 							}
 							res[v] = json;
-						}
-						else {
-							res[v] = data;
 						}
 						checkCompletion();
 					});
@@ -87,14 +89,18 @@ let readSecrets = function(options, callback) {
 let readSecretsSync = function(options) {
 	let opts = {
 		encoding: (options && options.encoding ? options.encoding : DEFAULT_ENCODING),
-		parseJSON: (options && options.parseJSON !== DEFAULT_PARSE_JSON ? options.parseJSON : DEFAULT_PARSE_JSON),
-		secretsDir: (options && options.secretsDir ? options.secretsDir : DEFAULT_SECRETS_DIR)
+		secretsDir: (options && options.secretsDir ? options.secretsDir : DEFAULT_SECRETS_DIR),
+		ignoreJSON: (options && options.ignoreJSON !== DEFAULT_IGNORE_JSON? options.ignoreJSON : DEFAULT_IGNORE_JSON),
+		debug: (options && options.debug !== DEFAULT_DEBUG ? options.debug : DEFAULT_DEBUG)
 	};
 	let files = fs.readdirSync(opts.secretsDir);
 	let res = {};
 	for(let v of files) {
 		let data = fs.readFileSync(path.join(opts.secretsDir, v), opts.encoding).toString();
-		if(opts.parseJSON) {
+		if(opts.ignoreJSON) {
+			res[v] = data;
+		}
+		else {
 			let json;
 			try {
 				json = JSON.parse(data);
@@ -103,9 +109,6 @@ let readSecretsSync = function(options) {
 				json = data;
 			}
 			res[v] = json;
-		}
-		else {
-			res[v] = data;
 		}
 	}
 	return res;
@@ -121,8 +124,9 @@ let readSecretsSync = function(options) {
 let readSecret = function(name, options, callback) {
 	let opts = {
 		encoding: (options && options.encoding ? options.encoding : DEFAULT_ENCODING),
-		parseJSON: (options && options.parseJSON !== DEFAULT_PARSE_JSON ? options.parseJSON : DEFAULT_PARSE_JSON),
-		secretsDir: (options && options.secretsDir ? options.secretsDir : DEFAULT_SECRETS_DIR)
+		secretsDir: (options && options.secretsDir ? options.secretsDir : DEFAULT_SECRETS_DIR),
+		ignoreJSON: (options && options.ignoreJSON !== DEFAULT_IGNORE_JSON? options.ignoreJSON : DEFAULT_IGNORE_JSON),
+		debug: (options && options.debug !== DEFAULT_DEBUG ? options.debug : DEFAULT_DEBUG)
 	};
 	let doReadSecret = function() {
 		let promise = new Promise( (resolve, reject) => {
@@ -131,7 +135,10 @@ let readSecret = function(name, options, callback) {
 					reject(err);
 				}
 				data = data.toString();
-				if(opts.parseJSON) {
+				if(opts.ignoreJSON) {
+					resolve(data);
+				}
+				else {
 					let json;
 					try {
 						json = JSON.parse(data);
@@ -140,9 +147,6 @@ let readSecret = function(name, options, callback) {
 						json = data;
 					}
 					resolve(json);
-				}
-				else {
-					resolve(data);
 				}
 			});
 		});
@@ -170,12 +174,16 @@ let readSecret = function(name, options, callback) {
 let readSecretSync = function(name, options) {
 	let opts = {
 		encoding: (options && options.encoding ? options.encoding : DEFAULT_ENCODING),
-		parseJSON: (options && options.parseJSON !== DEFAULT_PARSE_JSON ? options.parseJSON : DEFAULT_PARSE_JSON),
-		secretsDir: (options && options.secretsDir ? options.secretsDir : DEFAULT_SECRETS_DIR)
+		secretsDir: (options && options.secretsDir ? options.secretsDir : DEFAULT_SECRETS_DIR),
+		ignoreJSON: (options && options.ignoreJSON !== DEFAULT_IGNORE_JSON? options.ignoreJSON : DEFAULT_IGNORE_JSON),
+		debug: (options && options.debug !== DEFAULT_DEBUG ? options.debug : DEFAULT_DEBUG)
 	};
 	let data = fs.readFileSync(path.join(opts.secretsDir, name), opts.encoding).toString();
 	let res;
-	if(opts.parseJSON) {
+	if(opts.ignoreJSON) {
+		res = data;
+	}
+	else {
 		let json;
 		try {
 			json = JSON.parse(data);
@@ -184,9 +192,6 @@ let readSecretSync = function(name, options) {
 			json = data;
 		}
 		res = json;
-	}
-	else {
-		res = data;
 	}
 	return res;
 };

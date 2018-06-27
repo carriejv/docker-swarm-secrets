@@ -23,6 +23,8 @@ or
 
 All cases use two example secrets, `text`, which contains some UTF-8 text, and `json`, which contains valid JSON.
 
+If secrets cannot be found or are unreadable, all functions will return `false` unless `debug` is set to true.
+
 For more information about creating and using secrets, please refer to the [Docker documentation](https://docs.docker.com/compose/compose-file/#secrets).
 
 ### Async, with Promises
@@ -32,8 +34,9 @@ let dockerSecrets = require('docker-swarm-secrets');
 // These are the default options, if none are passed.
 let options = {
     encoding: 'utf-8',
-    parseJSON: true,
-    secretsDir: '/run/secrets'
+    secretsDir: '/run/secrets',
+    ignoreJSON: false,
+    debug: false
 };
 
 dockerSecrets.readSecrets(options)
@@ -61,8 +64,9 @@ let dockerSecrets = require('docker-swarm-secrets');
 // These are the default options, if none are passed.
 let options = {
     encoding: 'utf-8',
-    parseJSON: true,
-    secretsDir: '/run/secrets'
+    secretsDir: '/run/secrets',
+    ignoreJSON: false,
+    debug: false
 };
 
 dockerSecrets.readSecrets(options, (err, result) => {
@@ -94,8 +98,9 @@ let dockerSecrets = require('docker-swarm-secrets');
 // These are the default options, if none are passed.
 let options = {
     encoding: 'utf-8',
-    parseJSON: true,
-    secretsDir: '/run/secrets'
+    secretsDir: '/run/secrets',
+    ignoreJSON: false,
+    debug: false
 };
 
 let result = dockerSecrets.readSecretsSync(options);
@@ -113,8 +118,9 @@ console.log(result); // 'Your text.'
 ```javascript
 var options = {
     encoding: 'utf-8',              // Accepts any encoding method supported by Node fs.
-    parseJSON: true,                // If set to false, all secrets (including JSON) will be read as plain text.
     secretsDir: '/run/secrets',     // If set, reads from this directory instead of the Docker default of /run/secrets
+    ignoreJSON: true,               // If true, all secrets (including JSON) will be read as plain text.
+    debug: false                    // If true, throws errors instead of returning false in the case of missing or unreadable secrets
 };
 ```
 

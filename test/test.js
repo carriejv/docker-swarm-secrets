@@ -6,8 +6,9 @@ let dockerSwarmSecrets = require('../index.js');
 
 let testOptions = {
 	encoding: 'utf-8',
-	parseJSON: true,
-	secretsDir: './test/test-secrets'
+	secretsDir: './test/test-secrets',
+	ignoreJSON: false,
+	debug: false
 };
 
 describe('docker-swarm-secrets', function() {
