@@ -93,10 +93,32 @@ let readSecretsSync = function(options) {
 		ignoreJSON: (options && options.ignoreJSON !== DEFAULT_IGNORE_JSON? options.ignoreJSON : DEFAULT_IGNORE_JSON),
 		debug: (options && options.debug !== DEFAULT_DEBUG ? options.debug : DEFAULT_DEBUG)
 	};
-	let files = fs.readdirSync(opts.secretsDir);
+	let files;
+	try {
+		files = fs.readdirSync(opts.secretsDir);
+	}
+	catch(e) {
+		if(opts.debug) {
+			throw e;
+		}
+		else {
+			return false;
+		}
+	}
 	let res = {};
 	for(let v of files) {
-		let data = fs.readFileSync(path.join(opts.secretsDir, v), opts.encoding).toString();
+		let data;
+		try {
+			data = fs.readFileSync(path.join(opts.secretsDir, v), opts.encoding).toString();
+		}
+		catch(e) {
+			if(opts.debug) {
+				throw e;
+			}
+			else {
+				return false;
+			}
+		}
 		if(opts.ignoreJSON) {
 			res[v] = data;
 		}
@@ -178,7 +200,18 @@ let readSecretSync = function(name, options) {
 		ignoreJSON: (options && options.ignoreJSON !== DEFAULT_IGNORE_JSON? options.ignoreJSON : DEFAULT_IGNORE_JSON),
 		debug: (options && options.debug !== DEFAULT_DEBUG ? options.debug : DEFAULT_DEBUG)
 	};
-	let data = fs.readFileSync(path.join(opts.secretsDir, name), opts.encoding).toString();
+	let data;
+	try {
+		data = fs.readFileSync(path.join(opts.secretsDir, name), opts.encoding).toString();
+	}
+	catch(e) {
+		if(opts.debug) {
+			throw e;
+		}
+		else {
+			return false;
+		}
+	}
 	let res;
 	if(opts.ignoreJSON) {
 		res = data;

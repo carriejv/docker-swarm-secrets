@@ -64,7 +64,19 @@ describe('docker-swarm-secrets', function() {
 			dockerSwarmSecrets.readSecretsSync(testOptions).json.this.should.equal('is');
 			dockerSwarmSecrets.readSecretsSync(testOptions).json.valid.should.equal('json');
 		});
-
+		it('should return false on failure with debug mode off', function() {
+			let opts = {
+				secretsDir: './test/nothing-here'
+			};
+			dockerSwarmSecrets.readSecretsSync(opts).should.equal(false);
+		});
+		it('should throw an error on failure with debug mode on', function() {
+			let opts = {
+				secretsDir: './test/nothing-here',
+				debug: true
+			};
+			should.Throw(() => {dockerSwarmSecrets.readSecretsSync(opts);}, Error);
+		});
 	});
 
 	describe('#readSecret', function() {
@@ -118,7 +130,19 @@ describe('docker-swarm-secrets', function() {
 			dockerSwarmSecrets.readSecretSync('json', testOptions).this.should.equal('is');
 			dockerSwarmSecrets.readSecretSync('json', testOptions).valid.should.equal('json');
 		});
-
+		it('should return false on failure with debug mode off', function() {
+			let opts = {
+				secretsDir: './test/nothing-here'
+			};
+			dockerSwarmSecrets.readSecretSync('lies', opts).should.equal(false);
+		});
+		it('should throw an error on failure with debug mode on', function() {
+			let opts = {
+				secretsDir: './test/nothing-here',
+				debug: true
+			};
+			should.Throw(() => {dockerSwarmSecrets.readSecretSync('lies', opts);}, Error);
+		});
 	});
 
 });

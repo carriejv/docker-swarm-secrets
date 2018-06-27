@@ -23,7 +23,7 @@ or
 
 All cases use two example secrets, `text`, which contains some UTF-8 text, and `json`, which contains valid JSON.
 
-If secrets cannot be found or are unreadable, all functions will return `false` unless `debug` is set to true.
+If secrets cannot be found or are unreadable, synchronous functions will return `false` unless `debug` is set to true. Error handling is always dealt with via the Promise or callback for async functions.
 
 For more information about creating and using secrets, please refer to the [Docker documentation](https://docs.docker.com/compose/compose-file/#secrets).
 
