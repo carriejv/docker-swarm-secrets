@@ -17,7 +17,7 @@ const DEFAULT_DEBUG = false;
 /**
  * Reads all Docker secrets asynchronously into an object, using secret names as keys. Valid JSON is parsed as such, unless set otherwise in options. All other data is read as a string.
  *
- * @param {Object} options - An object containing options for the function.
+ * @param {object} [options] - An object containing optional flags, if any, including encoding, secretsDir, ignoreJSON, and debug.
  * @param {function} [callback] - A callback function, accepting an error (if any) and an object containing the secrets as parameters. If none is provided, readSecrets returns a Promise object instead.
  */
 let readSecrets = function(options, callback) {
@@ -82,9 +82,9 @@ let readSecrets = function(options, callback) {
 };
 
 /**
- * Reads all Docker secrets synchronously into an Object, using secret names as keys. Valid JSON is parsed as such, unless set otherwise in options. All other data is read as a string.
+ * Reads all Docker secrets synchronously into an object, using secret names as keys. Valid JSON is parsed as such, unless set otherwise in options. All other data is read as a string. Returns false on error unless debug is set to true in options.
  *
- * @param {Object} options - An object containing options for the function.
+ * @param {object} [options] - An object containing optional flags, if any, including encoding, secretsDir, ignoreJSON, and debug.
  */
 let readSecretsSync = function(options) {
 	let opts = {
@@ -139,8 +139,8 @@ let readSecretsSync = function(options) {
 /**
  * Reads a single Docker secret asynchronously. Valid JSON is parsed as such, unless set otherwise in options. All other data is read as a string.
  *
- * @param {string} name - The name of the Docker secret.
- * @param {Object} options - An object containing options for the function.
+ * @param {string} name - The name of the Docker secret as declared in docker-compose.yml. (Not the filename of the secret file.)
+ * @param {object} [options] - An object containing optional flags, if any, including encoding, secretsDir, ignoreJSON, and debug.
  * @param {function} [callback] - A callback function, accepting an error (if any) and an object containing the secrets as parameters. If none is provided, readSecrets returns a Promise object instead.
  */
 let readSecret = function(name, options, callback) {
@@ -188,10 +188,10 @@ let readSecret = function(name, options, callback) {
 };
 
 /**
- * Reads a single Docker secrets synchronously. Valid JSON is parsed as such, unless set otherwise in options. All other data is read as a string.
+ * Reads a single Docker secrets synchronously. Valid JSON is parsed as such, unless set otherwise in options. All other data is read as a string. Returns false on error unless debug is set to true in options.
  *
- * @param {string} name - The name of the Docker secret.
- * @param {Object} options - An object containing options for the function.
+ * @param {string} name - The name of the Docker secret as declared in docker-compose.yml. (Not the filename of the secret file.)
+ * @param {object} [options] - An object containing optional flags, if any, including encoding, secretsDir, ignoreJSON, and debug.
  */
 let readSecretSync = function(name, options) {
 	let opts = {
@@ -229,6 +229,9 @@ let readSecretSync = function(name, options) {
 	return res;
 };
 
+/**
+ * Module exports
+ */
 module.exports = {
 	readSecrets: readSecrets,
 	readSecretsSync: readSecretsSync,
