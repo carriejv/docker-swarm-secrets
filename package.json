@@ -5,9 +5,13 @@
 	"keywords": [
 		"docker",
 		"swarm",
+		"secret",
 		"secrets",
 		"container",
-		"parser"
+		"parser",
+		"loader",
+		"typescript",
+		"types"
 	],
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",

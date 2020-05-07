@@ -7,7 +7,8 @@
 
 Docker Swarm Secrets is a Node library for managing [Docker secrets](https://docs.docker.com/engine/swarm/secrets/). It aims to be a more robust and modern option than previous secret managers and includes:
 
-* Async File I/O
+* Async/Await Support
+* Non-blocking File I/O
 * Extensible Automatic Secret Parsing
 * Typescript Compatability
 
@@ -77,11 +78,11 @@ These interpreters may have an optional `predicate`, which determines which secr
 ```ts
 const allMyParsedSecrets = secretReader.readSecrets([
     { // Will only run on secrets ending in .json
-        interpreter: s => JSON.parse(s.toString('utf8')),
+        interpreter: s => JSON.parse(s?.data.toString('utf8')),
         predicate: s => /\.json$/.test(s.name)
     }, 
     { // Will match any secret
-        interpreter: s => s.toString('utf8')
+        interpreter: s => s.?data.toString('utf8')
     },
 ]);
 ```
