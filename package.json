@@ -1,13 +1,17 @@
 {
 	"name": "docker-swarm-secrets",
-	"version": "2.0.1",
+	"version": "2.0.2",
 	"description": "A manager for Docker secrets that features customizable secret parsing and async I/O.",
 	"keywords": [
 		"docker",
 		"swarm",
+		"secret",
 		"secrets",
 		"container",
-		"parser"
+		"parser",
+		"loader",
+		"typescript",
+		"types"
 	],
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
