@@ -48,7 +48,7 @@ If you wish to provide parsing logic for secrets, you may provide an `interprete
 
 ```ts
 const myStringSecret = await secretReader.readSecret('myStringSecret', 
-    secret => secret.toString('utf8')
+    secret => secret.?data.toString('utf8')
 );
 myStringSecret.substring(0, 1); // Typescript is okay with this!
 
@@ -131,7 +131,7 @@ const secretReader = new DSSReader('/some/place/full/of/secrets');
 
 Docker Swarm Secrets `2.x.x` provides much more flexibility with secret reading and parsing than prior versions.
 
-If you wish to emulate the behavior of version `1.x.x`, the following code approximates its behavior.
+If you wish to emulate the behavior of version `1.x.x`, the following code approximates it.
 
 ```ts
 // 1.x.x - Automatic JSON parsing
