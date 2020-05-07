@@ -1,20 +1,26 @@
 {
 	"name": "docker-swarm-secrets",
-	"version": "1.0.0",
-	"description": "A simple manager for Docker secrets.",
+	"version": "2.0.0",
+	"description": "A manager for Docker secrets that features customizable secret parsing and async I/O.",
 	"keywords": [
 		"docker",
 		"swarm",
 		"secrets",
-		"container"
+		"container",
+		"parser"
 	],
-	"main": "index.js",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
 	"directories": {
 		"test": "test"
 	},
 	"scripts": {
 		"start": "node index.js",
-		"test": "nyc mocha --exit"
+		"test": "npm run lint && npm run testOnly",
+		"testOnly": "nyc mocha -r ts-node/register ./test/**/*.spec.ts",
+		"lint": "eslint . --ext .ts",
+		"build": "tsc --project ./tsconfig.json",
+		"prepublishOnly": "npm run build"
 	},
 	"repository": {
 		"type": "git",
@@ -24,16 +30,27 @@
 		"url": "https://github.com/carriejv/docker-swarm-secrets/issues"
 	},
 	"homepage": "https://github.com/carriejv/docker-swarm-secrets",
-	"author": "Carrie Vrtis <cjvrtis@gmail.com> (https://www.carrievrtis.com)",
+	"author": "Carrie Vrtis <carrie@carriejv.com> (https://www.carriejv.com)",
 	"contributors": [
-		"Carrie Vrtis <cjvrtis@gmail.com> (https://www.carrievrtis.com)"
+		"Carrie Vrtis <carrie@carriejv.com> (https://www.carriejv.com)"
 	],
 	"license": "MIT",
 	"private": false,
 	"devDependencies": {
-		"chai": "^4.1.2",
-		"chai-as-promised": "^7.1.1",
-		"mocha": "^5.0.4",
-		"nyc": "^13.1.0"
+		"@types/node": "^13.13.5",
+		"@types/sinon": "^9.0.0",
+		"@typescript-eslint/eslint-plugin": "^2.31.0",
+		"@typescript-eslint/parser": "^2.31.0",
+		"chai": "^4.2.0",
+		"eslint": "^6.8.0",
+		"mocha": "^7.1.2",
+		"nyc": "^15.0.1",
+		"rewiremock": "^3.13.9",
+		"ts-node": "^8.10.1",
+		"typescript": "^3.8.3"
+	},
+	"dependencies": {
+		"@types/chai": "^4.2.11",
+		"@types/mocha": "^7.0.2"
 	}
 }
