@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { DefaultInterpreters } from '../interpreters/interpreters';
+import { DefaultInterpreters } from '../interpreters/default-interpreters';
 
 /** The default mount point of a docker secrets file system. */
 const DEFAULT_DOCKER_SECRETS_MOUNT = '/run/secrets';

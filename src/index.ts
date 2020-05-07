@@ -4,7 +4,7 @@ import {
 
 import {
     DefaultInterpreters
-} from './interpreters/interpreters';
+} from './interpreters/default-interpreters';
 
 export {
     DSSReader,
