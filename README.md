@@ -72,7 +72,7 @@ const mySuperSecretStuff = await secretReader.readSecrets(mySuperComplicatedInte
 
 If you need to handle a variety of secret data types, you may specify multiple interpreters with `readSecrets`.
 
-These interpreters may have an optional `predicate`, which determines which secrets the secrets passed to them. The first matching interpreter wins. If no interpreters match a secret, it will not be returned. A catch-all interpreter with no predicate may also be specified.
+These interpreters may have an optional `predicate`, which determines which secrets are passed to them. The first matching interpreter wins. If no interpreters match a secret, it will not be returned. A catch-all interpreter with no predicate may also be specified.
 
 ```ts
 const allMyParsedSecrets = secretReader.readSecrets([
