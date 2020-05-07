@@ -16,7 +16,8 @@
 	},
 	"scripts": {
 		"start": "node index.js",
-		"test": "nyc mocha -r ts-node/register ./test/**/*.spec.ts",
+		"test": "npm run lint && npm run testOnly",
+		"testOnly": "nyc mocha -r ts-node/register ./test/**/*.spec.ts",
 		"lint": "eslint . --ext .ts",
 		"build": "tsc --project ./tsconfig.json",
 		"prepublishOnly": "npm run build"

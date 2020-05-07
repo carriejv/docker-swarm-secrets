@@ -55,7 +55,7 @@ export class DSSReader {
         const secret = (interpreter ?? DefaultInterpreters.asBuffer())({name, data}) as T;
 
         // Return the result
-        return { name, data, secret };;
+        return { name, data, secret };
     }
 
     /**
