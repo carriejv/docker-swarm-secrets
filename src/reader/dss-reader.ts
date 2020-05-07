@@ -15,7 +15,7 @@ export type DSSPredicate = (rawSecret: DSSRawSecret) => boolean;
 /** Defines an interpreter which is only run if a given condition is satisfied. */
 export interface DSSPredicatedInterpreter<T> {
     interpreter: DSSInterpreter<T>;
-    prediacte?: DSSPredicate;
+    predicate?: DSSPredicate;
 }
 
 /** Defines info about a secret being read, pre-interpretation */
@@ -60,9 +60,7 @@ export class DSSReader {
 
     /**
      * Reads all available secrets asynchronously, optionally parsing them using `interpreter` and `predicate` functions.
-     * Due to the possibility of returning secrets of a variety of arbitrary types, typing is disabled by default on `readSecrets`.
-     * If desired, a parameterized type <T> may still be specified for interpreted secret values.
-     * To utilize typing, use `readSecret` on individual secrets.
+     * Secrets are returned as an object keyed by secret name.
      * @param interpreters  The interpreter functions to run on secrets.
      *                      If a given `predicate` returns true for a secret, the associated `interpreter` will be called.
      *                      First matching interpreter wins. Secrets that do not match any interpreter will be ignored.
@@ -72,9 +70,15 @@ export class DSSReader {
      *                      If no interpreters are provided, all available secrets will be returned as raw Buffers.
      * @param callback      Optional callback for handling the asynchronous return value, if preferred to async/await.
      */
-    public async readSecrets<T = Buffer>(interpreters?: DSSPredicatedInterpreter<T>[]): Promise<DSSSecret<T>[]> {
+    public async readSecrets<T = Buffer>(interpreters?: DSSPredicatedInterpreter<T> | DSSPredicatedInterpreter<T>[]): Promise<{[key: string]: DSSSecret<T>}> {
         // Create result array
-        const result: DSSSecret<T>[] = [];
+        const result: {[key: string]: DSSSecret<T>} = {};
+
+        // Handle varied interpreter args
+        interpreters = interpreters ?? [{interpreter: DefaultInterpreters.asBuffer() as any}];
+        if(!Array.isArray(interpreters)) {
+            interpreters = [interpreters];
+        }
 
         // Read each file in the target directory
         const dir = await fs.promises.readdir(this.secretsDirectory);
@@ -83,11 +87,11 @@ export class DSSReader {
 
             // Append the default unpredicated interpreter, then check for valid interpreters
             let secret: T | undefined = undefined;
-            for(const candidate of interpreters ?? [{interpreter: DefaultInterpreters.asBuffer(), prediacte: null}]) {
+            for(const candidate of interpreters) {
                 // Secrets matching a predicate (or a default interpreter) are parsed and returned.
-                if(!candidate.prediacte || candidate.prediacte({name, data})) {
+                if(!candidate.predicate || candidate.predicate({name, data})) {
                     secret = candidate.interpreter({name, data}) as T;
-                    result.push({name, data, secret});
+                    result[name] = ({name, data, secret});
                     break;
                 }
             }
@@ -111,7 +115,7 @@ export class DSSReader {
         const data = this.readFileIgnoreMissingSync(name);
 
         // Run the interpreter -- Typecast is needed to satisfy compiler in the default case
-        const secret = (interpreter ?? DefaultInterpreters.asBuffer)({name, data}) as T;
+        const secret = (interpreter ?? DefaultInterpreters.asBuffer())({name, data}) as T;
 
         // Return the result
         return { name, data, secret };
@@ -119,9 +123,7 @@ export class DSSReader {
 
     /**
      * Reads all available secrets synchronously, optionally parsing them using `interpreter` and `predicate` functions.
-     * Due to the possibility of returning secrets of a variety of arbitrary types, typing is disabled by default on `readSecrets`.
-     * If desired, a parameterized type <T> may still be specified for interpreted secret values.
-     * To utilize typing, use `readSecret` on individual secrets.
+     * Secrets are returned as an object keyed by secret name.
      * @param interpreters  The interpreter functions to run on secrets.
      *                      If a given `predicate` returns true for a secret, the associated `interpreter` will be called.
      *                      First matching interpreter wins. Secrets that do not match any interpreter will be ignored.
@@ -131,9 +133,15 @@ export class DSSReader {
      *                      If no interpreters are provided, all available secrets will be returned as raw Buffers.
      * @param callback      Optional callback for handling the asynchronous return value, if preferred to async/await.
      */
-    public async readSecretsSync<T = Buffer>(interpreters?: DSSPredicatedInterpreter<T>[]): Promise<DSSSecret<T>[]> {
+    public readSecretsSync<T = Buffer>(interpreters?: DSSPredicatedInterpreter<T> | DSSPredicatedInterpreter<T>[]): {[key: string]: DSSSecret<T>} {
         // Create result array
-        const result: DSSSecret<T>[] = [];
+        const result: {[key: string]: DSSSecret<T>} = {};
+
+        // Handle varied interpreter args
+        interpreters = interpreters ?? [{interpreter: DefaultInterpreters.asBuffer() as any}];
+        if(!Array.isArray(interpreters)) {
+            interpreters = [interpreters];
+        }
 
         // Read each file in the target directory
         const dir = fs.readdirSync(this.secretsDirectory);
@@ -142,11 +150,11 @@ export class DSSReader {
 
             // Append the default unpredicated interpreter, then check for valid interpreters
             let secret: T | undefined = undefined;
-            for(const candidate of interpreters ?? [{interpreter: DefaultInterpreters.asBuffer(), prediacte: null}]) {
+            for(const candidate of interpreters) {
                 // Secrets matching a predicate (or a default interpreter) are parsed and returned.
-                if(!candidate.prediacte || candidate.prediacte({name, data})) {
+                if(!candidate.predicate || candidate.predicate({name, data})) {
                     secret = candidate.interpreter({name, data}) as T;
-                    result.push({name, data, secret});
+                    result[name] = ({name, data, secret});
                     break;
                 }
             }
@@ -163,11 +171,11 @@ export class DSSReader {
     private async readFileIgnoreMissing(name: string): Promise<Buffer | undefined> {
         // Read in the target secret file
         try {
-            return fs.promises.readFile(path.join(this.secretsDirectory, name));
+            return await fs.promises.readFile(path.join(this.secretsDirectory, name));
         }
         catch(err) {
             // Missing secrets are not an error condition, just an undefined data buffer for the interpreter.
-            if(err.code !== 'ENOENT') {
+            if(err.code === 'ENOENT') {
                 return undefined;
             }
             throw err;
@@ -185,7 +193,7 @@ export class DSSReader {
         }
         catch(err) {
             // Missing secrets are not an error condition, just an undefined data buffer for the interpreter.
-            if(err.code !== 'ENOENT') {
+            if(err.code === 'ENOENT') {
                 return undefined;
             }
             throw err;
