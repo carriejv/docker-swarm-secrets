@@ -116,7 +116,7 @@ const legacyStyleSecret = secretReader.readSecret('secret', DefaultInterpreters.
 
 They are otherwise identical to the async versions.
 
-Note that a synchronous read cannot run an asynchronous interpreter, and all default interpreters are async.
+Note that a synchronous read cannot run an asynchronous interpreter. A `DefaultInterpretersSync` package is provided, which provides the same functionality as `DefaultInterpreters`.
 
 ## Specifying a Mount Point
 
