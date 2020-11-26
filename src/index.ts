@@ -1,6 +1,6 @@
 import {
     DSSReader
-} from './reader/dss-reader';
+} from './reader/secret-reader';
 
 import {
     DefaultInterpreters

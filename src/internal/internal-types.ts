@@ -14,25 +14,41 @@ export interface RawSecret {
 
 /** 
  * Defines a parsed secret and related config.
- * This object is stored by the internal cache.
+ * This object is returned by interpreter functions.
  */
-export interface Secret<T> extends RawSecret {
+export interface Secret<T> {
     /** The intepreted secret to store and return. */
     secret: T;
-    /** Timestamp for cache expirey. */
-    cacheUntil: number;
+    /** Timestamp for cache expirey. If unset, caches forever. If negative, does not cache. */
+    cacheFor?: number;
     /** Environment variable which can override the value of the secret. */
     envOverride?: string;
+    /** 
+     * Environment variable which can override the value of the secret.
+     * Raw overrides are not run through the interpreter function, but will be set directly as the secret.
+     */
+    envOverrideRaw?: string;
+}
+
+/** Secret object stored in the internal cache. */
+export interface CachedSecret<T> extends RawSecret, Secret<T> {
+    /** Timestamp at which cached secret will expire. */
+    cacheUntil: number;
+    /** Last seen raw environment variable override value. If changed, cache is automatically invalidated. */
+    lastSeenEnv?: string;
 }
 
 /** Defines an interpreter function. */
-export type Interpreter<T> = (rawSecret: RawSecret) => Promise<T>
+export type Interpreter<T> = (rawSecret: RawSecret) => Promise<T> | Promise<Secret<T>>
 
 /** Defines a synchronous interpreter function. */
-export type SyncInterpreter<T> = (rawSecret: RawSecret) => T
+export type InterpreterSync<T> = (rawSecret: RawSecret) => T | Secret<T>
 
 /** Defines an interpreter predicate function. */
 export type Predicate = (rawSecret: RawSecret) => boolean;
+
+/** Defines a synchronous interpreter predicate function. */
+export type PredicateSync = (rawSecret: RawSecret) => boolean;
 
 /** Defines an interpreter which is only run if a given condition is satisfied. */
 export interface PredicatedInterpreter<T> {
@@ -41,7 +57,7 @@ export interface PredicatedInterpreter<T> {
 }
 
 /** Defines a synchronous interpreter which is only run if a given condition is satisfied. */
-export interface SyncPredicatedInterpreter<T> {
-    interpreter: SyncInterpreter<T>;
-    predicate?: Predicate;
+export interface PredicatedInterpreterSync<T> {
+    interpreter: InterpreterSync<T>;
+    predicate?: PredicateSync;
 }

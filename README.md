@@ -37,6 +37,10 @@ db.connect(allMySecrets.dbUsername, allMySecrets.dbPassword);
 
 `DockerSecretsReader` and `KubernetesSecretReader` have identical APIs and functionality.
 
+### Requiring Secrets
+
+// TODO
+
 ### Secret Parsing & Typing
 
 By default, all valid secrets are returned as Buffers. Secrets that do not exist are returned as undefined.
@@ -66,6 +70,43 @@ const mySuperComplicatedInterpreter = (secret) => {
 };
 // Reuse it to parse all your secrets
 const mySuperSecretStuff = await secretReader.readSecrets(mySuperComplicatedInterpreter);
+```
+
+### Configure Caching and Environment Overrides
+
+Interpreter functions can also return a secret object containing the value of the secret and additional config.
+
+```ts
+const myStringSecret = await secretReader.readSecret('myStringSecret', 
+    secret => return {
+        secret: secret?.data.toString('utf8'),
+        // Time in ms.
+        cacheFor: 60000,
+        // If set and MY_STRING_SECRET exists, the value of MY_STRING_SECRET will be parsed instead of the value of the Docker/k8s secret.
+        envOverride: 'MY_STRING_SECRET'
+        // If set and MY_STRING_SECRET exists, the literal value of MY_STRING_SECRET will be used as the secret value.
+        // Takes precedence over envOverride.
+        envOverrideRaw: 'MY_STRING_SECRET'
+    };
+);
+```
+
+The cache can be cleared by using `secretReader.clearCache()` or `secretReader.clearCache('some-secret')`. By default, the cache is indefinite. To disable caching, set `cacheFor` to a negative number.
+
+When an `envOverride` or `envOverrideRaw` is set and the overriding environment variable exists, the normal caching policy is ignored. Instead, the secret value will be updated whenever the environment variable changes.
+
+The `secret` property is used as a flag for treating the interpreter return as a config object. Attempting to return literal JSON containing a top-level `secret` property can cause unintended behavior.
+
+To avoid this issue, return the JSON inside a config object.
+```ts
+const myJSON = await secretReader.readSecret(
+    secret => return {
+        secret: {
+            secret: 'my-secret-here',
+            someOtherStuff: 'is-probably-here-too'
+        }
+    };
+);
 ```
 
 ### Multiple Interpreters

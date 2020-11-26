@@ -205,7 +205,7 @@ describe('DSSReader', () => {
         });
 
         it('should throw non-ENOENT filesystem errors', async () => {
-            const stubbed = rewiremock.proxy(() => require('../src/reader/dss-reader'), {
+            const stubbed = rewiremock.proxy(() => require('../src/reader/secret-reader'), {
                 'fs': { promises: { readFile: async () => { throw new Error('パターン青'); }}}
             });
             const reader = new stubbed.DSSReader('./test/test-secrets');
@@ -220,7 +220,7 @@ describe('DSSReader', () => {
         });
 
         it('should throw non-ENOENT filesystem errors (using sync file access)', async () => {
-            const stubbed = rewiremock.proxy(() => require('../src/reader/dss-reader'), {
+            const stubbed = rewiremock.proxy(() => require('../src/reader/secret-reader'), {
                 'fs': {readFileSync: () => { throw new Error('パターン青'); }}
             });
             const reader = new stubbed.DSSReader('./test/test-secrets');
