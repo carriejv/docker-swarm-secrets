@@ -24,7 +24,8 @@
 		"testOnly": "nyc mocha -r ts-node/register ./test/**/*.spec.ts",
 		"lint": "eslint . --ext .ts",
 		"build": "tsc --project ./tsconfig.json",
-		"prepublishOnly": "npm run build"
+		"prepublishOnly": "npm run build",
+		"postinstall": "echo \"docker-swarm-secrets is deprecated and is no longer receiving feature updates! Check out the [technician] package on npm!\""
 	},
 	"repository": {
 		"type": "git",

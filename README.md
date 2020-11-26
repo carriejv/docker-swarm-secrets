@@ -14,6 +14,71 @@ Docker Swarm Secrets is a Node library for managing [Docker secrets](https://doc
 
 For more information about creating and using secrets, please refer to the [Docker documentation](https://docs.docker.com/compose/compose-file/#secrets).
 
+## Docker-Swarm-Secrets is Deprecated!
+
+Docker-Swarm-Secrets has been rolled into [Technician](https://www.npmjs.com/package/technician), a brand new library that lets you manage all your application's config (secrets included!) using the familiar syntax of `docker-swarm-secrets`. This package will continue receiving security updates, but will no longer receive feature updates.
+
+[![Technician](https://img.shields.io/npm/v/technician?label=technician)](https://www.npmjs.com/package/technician)
+
+---
+
+## Migration Guide
+
+Migrating from `docker-swarm-secrets` to `technician` is easy. The biggest difference is that `technician` returns only the secret value from `read()`. The object containing the raw data Buffer is still available via `describe()`.
+
+Technician also caches results forever by default, instead of not caching by default (a decision that was made for legacy compatability in dss).
+
+### In Docker-Swarm-Secrets:
+```ts
+import { DSSReader } from 'docker-swarm-secrets';
+// ...
+const secretReader = new DSSReader();
+const mySecret = await secretReader.readSecret('mySecret');
+// mySecret === { name: 'mySecret', data: Buffer, secret: Buffer | ParsedData }
+```
+
+### In Technician:
+```ts
+import { Technician } from 'technician';
+import { FSConfigSource } from '@technician/fs-config-source';
+// ...
+const technicianReader = new Technician();
+// Alternatively, your own secret mount point.
+// Technician is built to work with any files, not just secrets!
+technicianReader.addSource(new FSConfigSource('/run/secrets'));
+const mySecret = await technicianReader.read('mySecret');
+// mySecret === Buffer<your file contents here>
+```
+
+## Migrating Interpreters
+
+Custom interpreters are now even more flexible in `technician`! Interpreters are set at the reader level in Technician, instead of being passed in with each read. This allows for less complex typing when accessing the cache. To return multiple data types, you can still create a complex branching interpreter -- or just use multiple Technician instances.
+
+Consult the Technician docs for more information on all the new features added to interpreters.
+
+The same `DefaultInterpreters` package is still available from Technician as well.
+
+### A Docker-Swarm-Secrets Interpreter:
+```ts
+// ...
+const mySecret = await secretReader.readSecret('mySecret', 
+    secret => secret?.data.toString('utf8')
+);
+// mySecret === { name: 'mySecret', data: Buffer, secret: string }
+```
+
+### A Technician Interpreter:
+```ts
+// ...
+const technicianReader = new Technician(
+    secret => value: secret?.data.toString('utf8')
+);
+const mySecret = await technicianReader.readSecret('mySecret');
+// typeof mySecret === 'string'
+```
+
+---
+
 ## Installation
 
 `npm i docker-swarm-secrets`
